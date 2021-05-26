@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText addressUrl;
     private TextView fileSize;
     private TextView fileType;
+    private Button getInfoButton;
 
     class DownloadInfoTask extends AsyncTask<String ,Void, FileInfo>{
 
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(FileInfo fileInfo) {
             super.onPostExecute(fileInfo);
 
-            fileSize.setText(fileInfo.getFileSize());
+            fileSize.setText(String.valueOf(fileInfo.getFileSize()));
             fileType.setText(fileInfo.getFileType());
 
         }
@@ -59,13 +61,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         addressUrl = findViewById(R.id.editTextUrl);
-        fileSize = findViewById(R.id.textFileSize);
-        fileType = findViewById(R.id.textFileType);
+        fileSize = findViewById(R.id.fileSizeNumber);
+        fileType = findViewById(R.id.fileTypeName);
+        getInfoButton = findViewById(R.id.buttonGetInformation);
 
-        //DownloadInfoTask downloadInfoTask = new DownloadInfoTask();
-        //downloadInfoTask.execute(addressUrl.getText().toString());
+        setGetInfoButton();
+
 
 
 
     }
+
+    void setGetInfoButton(){
+        getInfoButton.setOnClickListener(v -> {
+            DownloadInfoTask downloadInfoTask = new DownloadInfoTask();
+            downloadInfoTask.execute(addressUrl.getText().toString());
+        });
+    }
+
 }
