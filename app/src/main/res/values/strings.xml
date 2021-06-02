@@ -10,4 +10,5 @@
     <string name="downloaded_bytes">Downloaded bytes</string>
     <string name="default_site">https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.4.36.tar.xz</string>
 
+    <string name="notification_title">download app notification</string>
 </resources>
