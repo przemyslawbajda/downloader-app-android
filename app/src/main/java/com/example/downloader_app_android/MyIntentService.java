@@ -28,7 +28,7 @@ public class MyIntentService extends IntentService {
 
     private static final String TASK_1 = "com.example.intent_service.action.task1";
 
-    private static final String PARAMETER_1 = "com.example.intent_service.extra.parameter1";
+    private static final String FILE_URL = "com.example.intent_service.extra.parameter1";
 
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
@@ -40,7 +40,7 @@ public class MyIntentService extends IntentService {
     public static void runService(Context context, String parameter){
         Intent intent = new Intent(context, MyIntentService.class);
         intent.setAction(TASK_1);
-        intent.putExtra(PARAMETER_1, parameter);
+        intent.putExtra(FILE_URL, parameter);
         context.startService(intent);
 
     }
@@ -54,14 +54,15 @@ public class MyIntentService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         //DOKONCZYC
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        //prepareNotificationChannel();
+        prepareNotificationChannel();
+        startForeground(NOTIFICATION_ID, createNotification());
 
         //do powiadomien tu
 
         if(intent!=null){
             final String action = intent.getAction();
             if(TASK_1.equals(action)){
-                final String param1 = intent.getStringExtra(PARAMETER_1);
+                final String param1 = intent.getStringExtra(FILE_URL);
                 Log.d("intent_service", "pobieranie rozpoczyna sie");
                 downloadFile(param1);
             } else{
@@ -85,12 +86,11 @@ public class MyIntentService extends IntentService {
 
     private Notification createNotification(){
         //dokonczyc!!!!
-        Intent notificationIntent = new Intent(this, MyIntentService.class);
-        //notificationIntent.putExtra();
+        Intent notificationIntent = new Intent(this, MainActivity.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(MyIntentService.class);
-        stackBuilder.addNextIntent(notificationIntent);
+
+        stackBuilder.addNextIntentWithParentStack(notificationIntent);
         PendingIntent waitingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification.Builder notificationBuilder = new Notification.Builder(this);
