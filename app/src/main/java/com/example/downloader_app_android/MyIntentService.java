@@ -14,6 +14,7 @@ import android.util.Log;
 
 
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -37,6 +38,12 @@ public class MyIntentService extends IntentService {
 
     private static final int BLOCK_SIZE = 4096;
 
+    public final static String NOTIFICATION = "com.example.intent_service.receiver";
+    public final static String INFO = "info";
+
+    private ProgressInfo progressInfo = new ProgressInfo();
+
+
     public static void runService(Context context, String parameter){
         Intent intent = new Intent(context, MyIntentService.class);
         intent.setAction(TASK_1);
@@ -45,6 +52,11 @@ public class MyIntentService extends IntentService {
 
     }
 
+    private void sendBroadcast(ProgressInfo progressInfo){
+        Intent intent = new Intent(NOTIFICATION);
+        intent.putExtra(INFO, progressInfo);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 
     public MyIntentService() {
         super("MyIntentService");
@@ -95,17 +107,28 @@ public class MyIntentService extends IntentService {
 
         Notification.Builder notificationBuilder = new Notification.Builder(this);
         notificationBuilder.setContentTitle(getString(R.string.notification_title))
-                .setProgress(100,1, false) // tu jakas wartoscPostepu()
+                .setProgress(100, 0, false) // tu jakas wartoscPostepu()
                 .setContentIntent(waitingIntent)
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setWhen(System.currentTimeMillis())
                 .setPriority(Notification.PRIORITY_HIGH);
 
-        if(true){ //!!!!!
-            notificationBuilder.setOngoing(false);
-        }else{
-            notificationBuilder.setOngoing(true);
+        if(progressInfo != null){
+            notificationBuilder.setProgress(progressInfo.getFileSize(), progressInfo.getDownloadedBytes(), false);
+
+            switch(progressInfo.getStatus()) {
+
+                case ProgressInfo.IN_PROGRESS:
+                    notificationBuilder.setOngoing(true);
+                    break;
+                case ProgressInfo.FINISHED:
+                    notificationBuilder.setOngoing(false);
+                    break;
+                case ProgressInfo.ERROR:
+                    notificationBuilder.setOngoing(false);
+            }
         }
+
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             notificationBuilder.setChannelId(CHANNEL_ID);
@@ -116,6 +139,8 @@ public class MyIntentService extends IntentService {
 
 
     private void downloadFile(String urlString){
+
+
         FileOutputStream streamToFile=null;
         InputStream streamFromWeb=null;
         HttpsURLConnection connection = null;
@@ -136,17 +161,30 @@ public class MyIntentService extends IntentService {
 
             if(outFile.exists()) tempFile.delete();
 
+
             DataInputStream reader = new DataInputStream(connection.getInputStream());
             streamToFile = new FileOutputStream(outFile.getPath());
             byte bufor[] = new byte[BLOCK_SIZE];
             int downloaded = reader.read(bufor,0, BLOCK_SIZE);
 
+            progressInfo.setFileSize(connection.getContentLength());
+            progressInfo.setDownloadedBytes(bytesDownloaded);
+            progressInfo.setStatus(ProgressInfo.IN_PROGRESS);
+            sendBroadcast(progressInfo);
+
             while(downloaded != -1){
-                Log.d("intent", "pobieranie...");
+                Log.d("intent", "pobieranie..."+ progressInfo.getDownloadedBytes() + " z " + progressInfo.getFileSize());
                 streamToFile.write(bufor,0,downloaded);
                 bytesDownloaded += downloaded;
                 downloaded = reader.read(bufor,0,BLOCK_SIZE);
+
+                progressInfo.setDownloadedBytes(bytesDownloaded);
+                sendBroadcast(progressInfo);
+                notificationManager.notify(NOTIFICATION_ID, createNotification());
+
             }
+
+            progressInfo.setStatus(ProgressInfo.FINISHED);
 
         }catch(Exception e){
             e.printStackTrace();

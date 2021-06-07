@@ -5,15 +5,20 @@ import android.os.Parcelable;
 
 public class ProgressInfo implements Parcelable {
 
-    public static int IN_PROGRESS = 0;
-    public static int FINISHED = 1;
-    public static int ERROR = -1;
+    public static final int IN_PROGRESS = 0;
+    public static final int FINISHED = 1;
+    public static final int ERROR = -1;
 
-    private int downloadedBytes = 0;
-    private int fileSize = 0;
+    private int downloadedBytes;
+    private int fileSize;
     private int status;
 
+    public ProgressInfo(){
+        downloadedBytes = 0;
+        fileSize = 0;
+        status = 0;
 
+    }
     protected ProgressInfo(Parcel in) {
         downloadedBytes = in.readInt();
         fileSize = in.readInt();

@@ -3,15 +3,23 @@ package com.example.downloader_app_android;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,9 +32,50 @@ public class MainActivity extends AppCompatActivity {
     private EditText addressUrl;
     private TextView fileSize;
     private TextView fileType;
+    private TextView downloadedBytesNumber;
     private Button getInfoButton;
     private Button downloadButton;
+    private ProgressBar progressBar;
+
+
     private final int CODE_WRITE_EXTERNAL_STORAGE = 1;
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            ProgressInfo progressInfo = bundle.getParcelable(MyIntentService.INFO);
+            progressBar.setMax(progressInfo.getFileSize());
+
+            switch (progressInfo.getStatus()){
+                case ProgressInfo.IN_PROGRESS:
+                    downloadedBytesNumber.setText(String.valueOf(progressInfo.getDownloadedBytes()));
+                    progressBar.setProgress(progressInfo.getDownloadedBytes());
+                    break;
+                case ProgressInfo.FINISHED:
+                    downloadedBytesNumber.setText(progressInfo.getFileSize());
+                    progressBar.setProgress(100);
+                    break;
+                case ProgressInfo.ERROR:
+                    Toast.makeText(getApplicationContext(), R.string.downloading_error ,Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                broadcastReceiver, new IntentFilter(MyIntentService.NOTIFICATION));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+    }
 
     class DownloadInfoTask extends AsyncTask<String ,Void, FileInfo>{
 
@@ -74,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
         fileType = findViewById(R.id.fileTypeName);
         getInfoButton = findViewById(R.id.buttonGetInformation);
         downloadButton = findViewById(R.id.buttonDownload);
+        downloadedBytesNumber = findViewById(R.id.downloadedBytesNumber);
+        progressBar = findViewById(R.id.progressBar);
+
+        progressBar.getProgressDrawable().setColorFilter(
+                Color.RED, android.graphics.PorterDuff.Mode.SRC_IN);
 
         setGetInfoButton();
         //Log.d("intent", "Sprawdzanie uprawnien");
