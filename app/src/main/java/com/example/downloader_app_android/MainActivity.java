@@ -140,7 +140,8 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(FILE_TYPE, fileType.getText().toString());
         outState.putString(FILE_SIZE, fileSize.getText().toString());
     }
-    
+
+
 
     private void setReferences() {
         addressUrl = findViewById(R.id.editTextUrl);
