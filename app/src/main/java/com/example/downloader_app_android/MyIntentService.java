@@ -101,7 +101,7 @@ public class MyIntentService extends IntentService {
                 .setWhen(System.currentTimeMillis())
                 .setPriority(Notification.PRIORITY_HIGH);
 
-        if(true){
+        if(true){ //!!!!!
             notificationBuilder.setOngoing(false);
         }else{
             notificationBuilder.setOngoing(true);
