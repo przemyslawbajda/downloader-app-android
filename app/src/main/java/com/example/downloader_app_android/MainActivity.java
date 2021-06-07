@@ -37,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private Button downloadButton;
     private ProgressBar progressBar;
 
+    public static final String FILE_TYPE = "FILE_TYPE";
+    public static final String FILE_SIZE = "FILE_SIZE";
+
 
     private final int CODE_WRITE_EXTERNAL_STORAGE = 1;
 
@@ -118,6 +121,28 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setReferences();
+
+        if(savedInstanceState != null){
+            fileType.setText(savedInstanceState.getString(FILE_TYPE));
+            fileSize.setText(savedInstanceState.getString(FILE_SIZE));
+        }
+
+        setGetInfoButton();
+        setDownloadButton();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString(FILE_TYPE, fileType.getText().toString());
+        outState.putString(FILE_SIZE, fileSize.getText().toString());
+    }
+    
+
+    private void setReferences() {
         addressUrl = findViewById(R.id.editTextUrl);
         fileSize = findViewById(R.id.fileSizeNumber);
         fileType = findViewById(R.id.fileTypeName);
@@ -128,13 +153,6 @@ public class MainActivity extends AppCompatActivity {
 
         progressBar.getProgressDrawable().setColorFilter(
                 Color.RED, android.graphics.PorterDuff.Mode.SRC_IN);
-
-        setGetInfoButton();
-        //Log.d("intent", "Sprawdzanie uprawnien");
-        setDownloadButton();
-
-
-
     }
 
     void setGetInfoButton(){
