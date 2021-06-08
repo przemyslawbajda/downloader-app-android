@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final int CODE_WRITE_EXTERNAL_STORAGE = 1;
 
+    //receive broadcast message
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver(){
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             ProgressInfo progressInfo = bundle.getParcelable(MyIntentService.INFO);
             progressBar.setMax(progressInfo.getFileSize());
 
+            //sets information on the screen depends on status
             switch (progressInfo.getStatus()){
                 case ProgressInfo.IN_PROGRESS:
                     downloadedBytesNumber.setText(String.valueOf(progressInfo.getDownloadedBytes()));
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
+    //Register receiver
     @Override
     protected void onResume() {
         super.onResume();
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 broadcastReceiver, new IntentFilter(MyIntentService.NOTIFICATION));
     }
 
+    //Unregister receiver
     @Override
     protected void onPause() {
         super.onPause();
@@ -82,9 +85,11 @@ public class MainActivity extends AppCompatActivity {
 
     class DownloadInfoTask extends AsyncTask<String ,Void, FileInfo>{
 
+
+        //connects with server, get file info and return file info object
         @Override
         protected FileInfo doInBackground(String... strings) {
-            //connects with server, get file info and return file info object
+
             HttpsURLConnection connection = null;
 
 
@@ -104,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
             return fileInfo;
         }
 
+
+        //set file type and size text when task is completed
         @Override
         protected void onPostExecute(FileInfo fileInfo) {
             super.onPostExecute(fileInfo);
@@ -165,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
     void setDownloadButton(){
         downloadButton.setOnClickListener(v -> {
+
             Log.d("intent", "Sprawdzanie uprawnien");
             if(ActivityCompat.checkSelfPermission(
                     this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==

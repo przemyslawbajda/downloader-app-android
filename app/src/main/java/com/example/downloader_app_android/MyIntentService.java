@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -25,6 +26,7 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
+
 public class MyIntentService extends IntentService {
 
     private static final String TASK_1 = "com.example.intent_service.action.task1";
@@ -34,8 +36,7 @@ public class MyIntentService extends IntentService {
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
 
-    private static final String CHANNEL_ID = "1"; //??
-
+    private static final String CHANNEL_ID = "1";
     private static final int BLOCK_SIZE = 4096;
 
     public final static String NOTIFICATION = "com.example.intent_service.receiver";
@@ -44,6 +45,7 @@ public class MyIntentService extends IntentService {
     private ProgressInfo progressInfo = new ProgressInfo();
 
 
+    //Creates intent that starts service
     public static void runService(Context context, String parameter){
         Intent intent = new Intent(context, MyIntentService.class);
         intent.setAction(TASK_1);
@@ -51,6 +53,7 @@ public class MyIntentService extends IntentService {
         context.startService(intent);
 
     }
+
 
     private void sendBroadcast(ProgressInfo progressInfo){
         Intent intent = new Intent(NOTIFICATION);
@@ -62,14 +65,13 @@ public class MyIntentService extends IntentService {
         super("MyIntentService");
     }
 
+     //Identifies kind of action, creates notification and starts download
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        //DOKONCZYC
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         prepareNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
 
-        //do powiadomien tu
 
         if(intent!=null){
             final String action = intent.getAction();
@@ -82,6 +84,8 @@ public class MyIntentService extends IntentService {
             }
         }
         Log.d("intent_service", "usluga wykonala zadanie");
+
+
     }
 
     private void prepareNotificationChannel(){
@@ -97,14 +101,15 @@ public class MyIntentService extends IntentService {
     }
 
     private Notification createNotification(){
-        //dokonczyc!!!!
         Intent notificationIntent = new Intent(this, MainActivity.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 
         stackBuilder.addNextIntentWithParentStack(notificationIntent);
         PendingIntent waitingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        //PendingIntent waitingIntent = PendingIntent.getBroadcast(this, 0 , new Intent(this, BroadcastReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
 
+        //build notification
         Notification.Builder notificationBuilder = new Notification.Builder(this);
         notificationBuilder.setContentTitle(getString(R.string.notification_title))
                 .setProgress(100, 0, false) // tu jakas wartoscPostepu()
@@ -113,6 +118,7 @@ public class MyIntentService extends IntentService {
                 .setWhen(System.currentTimeMillis())
                 .setPriority(Notification.PRIORITY_HIGH);
 
+        //sets notification progressbar
         if(progressInfo != null){
             notificationBuilder.setProgress(progressInfo.getFileSize(), progressInfo.getDownloadedBytes(), false);
 
@@ -184,7 +190,7 @@ public class MyIntentService extends IntentService {
 
             }
 
-            progressInfo.setStatus(ProgressInfo.FINISHED);
+            //progressInfo.setStatus(ProgressInfo.FINISHED);
 
         }catch(Exception e){
             e.printStackTrace();
