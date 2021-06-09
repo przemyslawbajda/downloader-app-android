@@ -107,12 +107,11 @@ public class MyIntentService extends IntentService {
 
         stackBuilder.addNextIntentWithParentStack(notificationIntent);
         PendingIntent waitingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        //PendingIntent waitingIntent = PendingIntent.getBroadcast(this, 0 , new Intent(this, BroadcastReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
 
         //build notification
         Notification.Builder notificationBuilder = new Notification.Builder(this);
         notificationBuilder.setContentTitle(getString(R.string.notification_title))
-                .setProgress(100, 0, false) // tu jakas wartoscPostepu()
+                .setProgress(100, progressInfo.getDownloadedBytes(), false)
                 .setContentIntent(waitingIntent)
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setWhen(System.currentTimeMillis())
@@ -190,7 +189,6 @@ public class MyIntentService extends IntentService {
 
             }
 
-            //progressInfo.setStatus(ProgressInfo.FINISHED);
 
         }catch(Exception e){
             e.printStackTrace();
