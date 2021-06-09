@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String FILE_TYPE = "FILE_TYPE";
     public static final String FILE_SIZE = "FILE_SIZE";
     public static final String DOWNLOADED_BYTES = "DOWNLOADED_BYTES";
+    public static final String URL = "URL";
 
 
     private final int CODE_WRITE_EXTERNAL_STORAGE = 1;
@@ -135,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
             fileType.setText(savedInstanceState.getString(FILE_TYPE));
             fileSize.setText(savedInstanceState.getString(FILE_SIZE));
             downloadedBytesNumber.setText(savedInstanceState.getString(DOWNLOADED_BYTES));
+            addressUrl.setText(savedInstanceState.getString(URL));
         }
 
         setGetInfoButton();
@@ -149,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(FILE_TYPE, fileType.getText().toString());
         outState.putString(FILE_SIZE, fileSize.getText().toString());
         outState.putString(DOWNLOADED_BYTES, downloadedBytesNumber.getText().toString());
+        outState.putString(URL, addressUrl.getText().toString());
 
     }
 
